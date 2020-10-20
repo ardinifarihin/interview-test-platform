@@ -89,6 +89,7 @@ namespace Checkout
                 if (_items['C'] > 6)
                 {
                     _items['C']--;
+                    Console.WriteLine("Maximum 6 of C items are allowed");
                 }
             }
 
