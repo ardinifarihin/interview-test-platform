@@ -1,81 +1,98 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Checkout
 {
     public class Till
     {
-
-        private Dictionary<char, int> _items = new Dictionary<char, int>{
+        //Defined and declared a Dictionary of items
+        private readonly Dictionary<char, int> _items = new Dictionary<char, int>{
             {'A', 0},
             {'B', 0},
-            {'C', 0}
+            {'C', 0},
+            {'D', 0}
         };
 
-        public double Total() 
-        { 
-            double total = 0;
-            foreach(var item in _items)
-            {
-                if(item.Key.Equals('A'))
-                {
-                    total += 50 * item.Value;
-                }
-                else if(item.Key.Equals('B'))
-                {
-                    total += AddB(item.Value.ToString());
-                } 
-                else if(item.Key.Equals('C'))
-                {
-                    total = AddItemC(total, item);
-                }
-                else total = AddItemD(total, item);
-            } 
-           return total;
-        }
+        //Defined and declared contants for prices and discounts of items
+        private const double priceA = 50;
+        private const double priceB = 30;
+        private const double priceC = 20;
+        private const double priceD = 15;
+        private const double discountA = 20; //3 for 130 special
+        private const double discountB = 15; //2 for 45 special
 
-static double AddItemD(double total, KeyValuePair<char, int> item)
-{
-    if (item.Key.Equals('D'))
-    {
-        total += 15 * item.Value;
-    }
-
-    return total;
-}
-
-
-        private static double AddItemC(double total, KeyValuePair<char, int> item)
+        //A public function to return total of prices for all items 
+        public double Total()
         {
-            if (item.Key.Equals('C'))
+            double total = 0;
+            foreach (var item in _items)
             {
-                total += 15 * item.Value;
+                total += AddPriceItem(item);
+                total -= AddDiscount(item);
             }
-
             return total;
         }
 
-        public double AddB(string numberItems)
+        // A private member to add the price by how many of the items checked
+        private static double AddPriceItem(KeyValuePair<char, int> item)
         {
-            double items = Double.Parse(numberItems);
 
-            if(items == 0) return 0;
-
-            var cost = items * 30;
-                var numberOfPairs =  items / 2;
-
-            // discount is 15 on each pair
-            var discount = numberOfPairs * 15;
-            return cost - discount;
+            double total = 0;
+            switch (item.Key)
+            {
+                case 'A':
+                    total = priceA * item.Value;
+                    break;
+                case 'B':
+                    total = priceB * item.Value;
+                    break;
+                case 'C':
+                    total = priceC * item.Value;
+                    break;
+                case 'D':
+                    total = priceD * item.Value;
+                    break;
+            }
+            return total;
         }
 
+        //A private member to add discount for special items
+        private static double AddDiscount(KeyValuePair<char, int> item)
+        {
+            double total = 0;
+            int numberOfSpecialItems;
+            switch (item.Key)
+            {
+                // A has special for "Buy 3 items for $130"
+                case 'A':
+                    numberOfSpecialItems = item.Value / 3;
+                    total = numberOfSpecialItems * discountA;
+                    break;
+                // B has special for "Buy 2 items for $45"
+                case 'B':
+                    numberOfSpecialItems = item.Value / 2;
+                    total = numberOfSpecialItems * discountB;
+                    break;
+            }
+            return total;
+        }
+
+        //A public function to scan the items
         public void Scan(string items)
         {
-            foreach(var item in items)
+            items = items.ToUpper(); //Not case sensitive; so convert all cases to uppercases
+            //Add items
+            foreach (var item in items)
             {
-                _items[item]++;  
+                _items[item]++;
+                //Remove the last C item when the it is more than 6
+                if (_items['C'] > 6)
+                {
+                    _items['C']--;
+                }
             }
+
+
         }
     }
 }
